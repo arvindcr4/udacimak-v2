@@ -1,10 +1,11 @@
-import cheerio from 'cheerio';
 import path from 'path';
 import {
   downloadImage,
   makeDir,
 } from '.';
 
+// Use require for cheerio to avoid Babel transpilation issues
+const cheerio = require('cheerio');
 
 /**
  * Find media links in given HTML text and download them

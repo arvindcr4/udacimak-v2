@@ -88,14 +88,14 @@ export default async function renderCourse(sourceDir, targetDir) {
     const treePart = sourceDirTree.children[i];
     if (courseType === 'COURSE') {
       // this is a course, so create Lessons now
-      if (treePart.type === 'directory') {
+      if (treePart.children) {
         const pathSourceJSON = treePart.path;
         const pathLesson = makeDir(dirNanodegree, treePart.name);
         await writeHtmlLesson(pathSourceJSON, pathLesson);
       }
     } else if (courseType === 'NANODEGREE') {
       // this is a nanodegree
-      if (treePart.type === 'directory') {
+      if (treePart.children) {
         // retrieve part number
         const prefixPart = treePart.name.match(/Part [\d]+/i);
 
@@ -103,7 +103,7 @@ export default async function renderCourse(sourceDir, targetDir) {
           const treeModule = treePart.children[j];
 
           // loop through "Module" folders
-          if (treeModule.type === 'directory') {
+          if (treeModule.children) {
             // retrieve module number
             const prefixModule = treeModule.name.match(/Module [\d]+/i);
 
@@ -112,17 +112,17 @@ export default async function renderCourse(sourceDir, targetDir) {
               const treeLesson = treeModule.children[k];
 
               // loop through "Lesson" folders
-              if (treeLesson.type === 'directory') {
+              if (treeLesson.children) {
                 const dirNameLesson = `${prefixPart}-${prefixModule}-${treeLesson.name}`;
                 const pathLesson = makeDir(dirNanodegree, dirNameLesson);
 
                 const pathSourceJSON = `${sourceDir}/${treePart.name}/${treeModule.name}/${treeLesson.name}`;
                 await writeHtmlLesson(pathSourceJSON, pathLesson);
-              } //.if treeLesson.type
+              } //.if treeLesson.children
             } //.for lessons
-          } //.if treeModule.type
+          } //.if treeModule.children
         } //.for modules
-      } //. if treePart.type
+      } //. if treePart.children
     } //.if courseType
   }
 
