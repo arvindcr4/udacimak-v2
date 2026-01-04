@@ -30,11 +30,6 @@ export default async function downloadImage(
   outputDir: string,
   filename?: string
 ): Promise<string> {
-  const errorCheck = `Please double-check the url from the JSON data to see if the link is really broken.
-If it is, it could be a broken link that Udacity hasn't fixed and you can ignore this error message.
-If the link was temporary broken and is up again when you check, please re-run the render to make sure the media file will be downloaded.
-`;
-
   if (!uri) {
     throw new Error('downloadImage: uri parameter is required');
   }

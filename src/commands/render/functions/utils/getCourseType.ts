@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-type CourseType = 'NANODEGREE' | 'COURSE' | 'UNKNOWN';
+export type CourseType = 'NANODEGREE' | 'COURSE' | 'UNKNOWN';
 
 /**
  * Check is this folder contains nanodegree, course or what
