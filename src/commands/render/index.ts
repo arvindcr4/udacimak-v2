@@ -16,6 +16,8 @@ export default async function render(path: string, targetDir: string): Promise<v
   try {
     await renderCourse(path, targetDir);
   } catch (error) {
-    logger.error(getFullErrorMessage(error));
+    const errorMsg = getFullErrorMessage(error);
+    logger.error(`Rendering failed for ${path}:\n${errorMsg}`);
+    throw error; // Re-throw to ensure command fails properly
   }
 }

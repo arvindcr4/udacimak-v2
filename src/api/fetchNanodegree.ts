@@ -250,5 +250,15 @@ export default async function fetchNanodegree(
     locale: 'en-us',
   });
 
-  return fetchApiUdacityGraphql<NanodegreeQuery>(API_ENDPOINTS_UDACITY_GRAPHQL, queryGraphql, udacityAuthToken);
+  try {
+    return await fetchApiUdacityGraphql<NanodegreeQuery>(API_ENDPOINTS_UDACITY_GRAPHQL, queryGraphql, udacityAuthToken);
+  } catch (error) {
+    const err = new Error(`Failed to fetch nanodegree ${ndInfo.key}: ${error instanceof Error ? error.message : String(error)}`) as AppError;
+    (err as AppError).cause = error;
+    throw err;
+  }
+}
+
+interface AppError extends Error {
+  cause?: unknown;
 }

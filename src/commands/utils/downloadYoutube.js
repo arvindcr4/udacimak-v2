@@ -66,15 +66,22 @@ export default async function downloadYoutube(videoId, outputPath, prefix, title
         // handle various error messages
         const errorMsg = String(message).toLowerCase();
         if (errorMsg.includes('unavailable') || errorMsg.includes('removed')) {
-          logger.error(`Youtube video with id ${videoId} is unavailable. It may have been deleted. Skipping this download.`);
-          return null;
+          const err = new Error(`Youtube video ${videoId} is unavailable. It may have been deleted.`);
+          err.code = 'VIDEO_UNAVAILABLE';
+          err.videoId = videoId;
+          throw err;
         }
         if (errorMsg.includes('sign in') || errorMsg.includes('private')) {
-          logger.error(`Youtube video with id ${videoId} is private. Skipping this download.`);
-          return null;
+          const err = new Error(`Youtube video ${videoId} is private and cannot be downloaded.`);
+          err.code = 'VIDEO_PRIVATE';
+          err.videoId = videoId;
+          throw err;
         }
-        logger.error(`Youtube video with id ${videoId} could not be downloaded. Skipping this download. Error:\n${JSON.stringify(message)}`);
-        return null;
+        const err = new Error(`Youtube video ${videoId} download failed: ${message}`);
+        err.code = 'VIDEO_DOWNLOAD_FAILED';
+        err.videoId = videoId;
+        err.originalError = error;
+        throw err;
       }
     }
   }
@@ -142,7 +149,8 @@ async function downloadYoutubeHelper(videoId, outputPath, prefix, title, format)
       try {
         subtitles = await downloadYoutubeSubtitles(videoId, filenameBase, outputPath);
       } catch (error) {
-        logger.warn(error);
+        // Subtitle download failures should be logged but don't fail the entire video download
+        logger.error(`Failed to download subtitles for video ${videoId}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
 

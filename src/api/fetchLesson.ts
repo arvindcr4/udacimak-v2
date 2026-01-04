@@ -426,5 +426,15 @@ export default async function fetchLesson(
     [locale]: 'en-us',
   });
 
-  return fetchApiUdacityGraphql<LessonQuery>(API_ENDPOINTS_UDACITY_GRAPHQL, queryGraphql, udacityAuthToken);
+  try {
+    return await fetchApiUdacityGraphql<LessonQuery>(API_ENDPOINTS_UDACITY_GRAPHQL, queryGraphql, udacityAuthToken);
+  } catch (error) {
+    const err = new Error(`Failed to fetch lesson: ${error instanceof Error ? error.message : String(error)}`) as AppError;
+    (err as AppError).cause = error;
+    throw err;
+  }
+}
+
+interface AppError extends Error {
+  cause?: unknown;
 }

@@ -12,6 +12,10 @@ interface CourseQuery {
   course: UdacityCourse;
 }
 
+interface AppError extends Error {
+  cause?: unknown;
+}
+
 /**
  * Fetch JSON data of a course from Udacity API
  * @param courseInfo - course information
@@ -21,96 +25,31 @@ export default async function fetchCourse(
   courseInfo: UdacityCourseInfo,
   udacityAuthToken: string
 ): Promise<UdacityGraphqlResponse<CourseQuery>> {
-  const { key } = courseInfo;
+  try {
+    const { key } = courseInfo;
 
-  const queryGraphql = JSON.stringify({
-    query: `
-      query CourseQuery {
-        course(key: "${key}" version: "1.0.0" locale: "en-us") {
-          id
-          key
-          version
-          locale
-          semantic_type
-          forum_path
-          title
-          is_public
-          is_default
-          user_state {
-            node_key
-            completed_at
-            last_viewed_at
-            unstructured
-          }
-          resources {
-            files {
-              name
-              uri
-            }
-          }
-          instructors {
-            image_url
-            first_name
-          }
-          project_deadline {
-            due_at
-          }
-          project {
-            key
-            version
-            locale
-            duration
-            semantic_type
-            title
-            description
-            is_public
-            summary
-            forum_path
-            rubric_id
-            terminal_project_id
-            resources {
-              files {
-                name
-                uri
-              }
-            }
-            image {
-              url
-              width
-              height
-            }
-          }
-          aggregated_state {
-            node_key
-            completion_amount
-            completed_count
-            concept_count
-            last_viewed_child_key
-            lesson_aggregated_states {
-              node_key
-              completed_at
-              completion_amount
-              completed_count
-              concept_count
-              last_viewed_child_key
-            }
-          }
-          lessons {
+    if (!key) {
+      throw new Error('fetchCourse: courseInfo.key is required');
+    }
+
+    const queryGraphql = JSON.stringify({
+      query: `
+        query CourseQuery {
+          course(key: "${key}" version: "1.0.0" locale: "en-us") {
             id
             key
             version
             locale
             semantic_type
-            summary
+            forum_path
             title
-            duration
             is_public
-            is_project_lesson
-            display_workspace_project_only
-            image {
-              url
-              width
-              height
+            is_default
+            user_state {
+              node_key
+              completed_at
+              last_viewed_at
+              unstructured
             }
             resources {
               files {
@@ -118,24 +57,12 @@ export default async function fetchCourse(
                 uri
               }
             }
-            concepts {
-              id
-              key
-              is_public
-              semantic_type
-              title
-              user_state {
-                node_key
-                completed_at
-                last_viewed_at
-                unstructured
-              }
-              resources {
-                files {
-                  name
-                  uri
-                }
-              }
+            instructors {
+              image_url
+              first_name
+            }
+            project_deadline {
+              due_at
             }
             project {
               key
@@ -161,25 +88,112 @@ export default async function fetchCourse(
                 width
                 height
               }
-              project_state {
-                state
-                submissions {
-                  created_at
+            }
+            aggregated_state {
+              node_key
+              completion_amount
+              completed_count
+              concept_count
+              last_viewed_child_key
+              lesson_aggregated_states {
+                node_key
+                completed_at
+                completion_amount
+                completed_count
+                concept_count
+                last_viewed_child_key
+              }
+            }
+            lessons {
+              id
+              key
+              version
+              locale
+              semantic_type
+              summary
+              title
+              duration
+              is_public
+              is_project_lesson
+              display_workspace_project_only
+              image {
+                url
+                width
+                height
+              }
+              resources {
+                files {
+                  name
+                  uri
+                }
+              }
+              concepts {
+                id
+                key
+                is_public
+                semantic_type
+                title
+                user_state {
+                  node_key
+                  completed_at
+                  last_viewed_at
+                  unstructured
+                }
+                resources {
+                  files {
+                    name
+                    uri
+                  }
+                }
+              }
+              project {
+                key
+                version
+                locale
+                duration
+                semantic_type
+                title
+                description
+                is_public
+                summary
+                forum_path
+                rubric_id
+                terminal_project_id
+                resources {
+                  files {
+                    name
+                    uri
+                  }
+                }
+                image {
                   url
-                  result
-                  is_legacy
-                  id
-                  status
+                  width
+                  height
+                }
+                project_state {
+                  state
+                  submissions {
+                    created_at
+                    url
+                    result
+                    is_legacy
+                    id
+                    status
+                  }
                 }
               }
             }
           }
         }
-      }
-    `,
-    variables: null,
-    locale: 'en-us',
-  });
+      `,
+      variables: null,
+      locale: 'en-us',
+    });
 
-  return fetchApiUdacityGraphql<CourseQuery>(API_ENDPOINTS_UDACITY_GRAPHQL, queryGraphql, udacityAuthToken);
+    return await fetchApiUdacityGraphql<CourseQuery>(API_ENDPOINTS_UDACITY_GRAPHQL, queryGraphql, udacityAuthToken);
+  } catch (error) {
+    const err = new Error(`Failed to fetch course ${courseInfo.key}: ${error instanceof Error ? error.message : String(error)}`) as AppError;
+    err.cause = error;
+    throw err;
+  }
 }

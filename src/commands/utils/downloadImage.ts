@@ -11,13 +11,19 @@ import {
   logger,
 } from '.';
 
+interface DownloadError extends Error {
+  code?: string;
+  uri?: string;
+  originalError?: unknown;
+}
 
 /**
  * Download media file and save it as image assets
  * @param uri - URI of image
  * @param outputDir - output directory path
  * @param filename - optional file name parameter
- * @returns filename or empty string on error
+ * @returns filename
+ * @throws Error if download fails
  */
 export default async function downloadImage(
   uri: string,
@@ -30,7 +36,7 @@ If the link was temporary broken and is up again when you check, please re-run t
 `;
 
   if (!uri) {
-    return '';
+    throw new Error('downloadImage: uri parameter is required');
   }
 
   // add https protocol to url if missing
@@ -67,10 +73,10 @@ If the link was temporary broken and is up again when you check, please re-run t
 
     if (response.status === 500) {
       spinner.fail();
-      logger.error(`Error Status 500: Request for media file fails!
-The url ${uri} returns Internal Server Error.
-${errorCheck}`);
-      return '';
+      const err = new Error(`Request for media file failed - Status 500: ${uri}`) as DownloadError;
+      err.code = 'HTTP_500';
+      err.uri = uri;
+      throw err;
     }
 
     const totalLength = parseInt(response.headers['content-length'], 10);
@@ -111,10 +117,11 @@ ${errorCheck}`);
     spinner.fail();
 
     if (error instanceof Error && 'code' in error && error.code === 'ENOTFOUND') {
-      logger.error(`${error.code}: Request for media file fails!
-The url ${uri} doesn't seem to exist.
-${errorCheck}`);
-      return '';
+      const err = new Error(`Image not found: ${uri}`) as DownloadError;
+      err.code = 'ENOTFOUND';
+      err.originalError = error;
+      err.uri = uri;
+      throw err;
     }
     throw error;
   }
