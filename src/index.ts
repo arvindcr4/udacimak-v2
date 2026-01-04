@@ -18,30 +18,7 @@ import {
   getPkgInfo,
 } from './commands/utils';
 import { preCli } from './cli';
-
-// Extend global object with custom properties
-declare global {
-  interface Global {
-    downloadYoutubeSubtitles: boolean;
-    delayYoutube: number;
-    ytVerbose: boolean;
-    optRenderUserQuizAnswer: boolean;
-    previousYoutubeTimestamp: number;
-  }
-
-  // eslint-disable-next-line no-var
-  var downloadYoutubeSubtitles: boolean;
-  // eslint-disable-next-line no-var
-  var delayYoutube: number;
-  // eslint-disable-next-line no-var
-  var ytVerbose: boolean;
-  // eslint-disable-next-line no-var
-  var optRenderUserQuizAnswer: boolean;
-  // eslint-disable-next-line no-var
-  var previousYoutubeTimestamp: number;
-}
-
-export {};
+import { setState } from './state/CommandLineState';
 
 const validateInt = (value: string): void => {
   if (!parseInt(value, 10)) {
@@ -105,12 +82,12 @@ program
 
     await preCli();
 
-    global.downloadYoutubeSubtitles = !!options.subtitles;
+    setState.downloadYoutubeSubtitles = !!options.subtitles;
+    setState.delayYoutube = options.delayYoutube ? parseInt(options.delayYoutube, 10) : 0;
+    setState.ytVerbose = !!options.verbose;
+    setState.optRenderUserQuizAnswer = !!options.userquizanswer;
 
     const targetdir = options.targetdir || process.cwd();
-    global.delayYoutube = options.delayYoutube ? parseInt(options.delayYoutube, 10) : 0;
-    global.ytVerbose = options.verbose;
-    global.optRenderUserQuizAnswer = options.userquizanswer;
 
     render(path, targetdir);
   })
@@ -144,12 +121,12 @@ program
 
     await preCli();
 
-    global.downloadYoutubeSubtitles = !!options.subtitles;
+    setState.downloadYoutubeSubtitles = !!options.subtitles;
+    setState.delayYoutube = options.delayYoutube ? parseInt(options.delayYoutube, 10) : 0;
+    setState.ytVerbose = !!options.verbose;
+    setState.optRenderUserQuizAnswer = !!options.userquizanswer;
 
     const targetdir = options.targetdir || process.cwd();
-    global.delayYoutube = options.delayYoutube ? parseInt(options.delayYoutube, 10) : 0;
-    global.ytVerbose = options.verbose;
-    global.optRenderUserQuizAnswer = options.userquizanswer;
     renderdir(path, targetdir);
   });
 

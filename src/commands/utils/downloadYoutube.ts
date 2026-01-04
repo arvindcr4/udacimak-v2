@@ -8,23 +8,14 @@ import {
   findVideoLocalSubtitles,
   logger,
 } from '.';
+import { state, setState } from '../../state/CommandLineState';
 
 interface VideoResult {
   src: string;
   subtitles: Array<{ src: string; srclang: string; default: boolean }>;
 }
 
-// Extend global type for CLI state
-declare global {
-  // eslint-disable-next-line no-var
-  var previousYoutubeTimestamp: number | undefined;
-  // eslint-disable-next-line no-var
-  var delayYoutube: number | undefined;
-  // eslint-disable-next-line no-var
-  var ytVerbose: boolean | undefined;
-  // eslint-disable-next-line no-var
-  var downloadYoutubeSubtitles: boolean | undefined;
-}
+// Use centralized state management instead of globals
 
 /**
  * Download youtube video and save locally
@@ -126,12 +117,12 @@ async function downloadYoutubeHelper(
   let timeout = 0;
 
   // calculate amount of time to wait before starting this next Youtube download
-  if (global.previousYoutubeTimestamp) {
-    const timeGap = Date.now() - global.previousYoutubeTimestamp;
-    const delayYoutube = (global.delayYoutube || 0) * 1000;
+  if (state.previousYoutubeTimestamp) {
+    const timeGap = Date.now() - state.previousYoutubeTimestamp;
+    const delayYoutubeMs = state.delayYoutube * 1000;
 
-    if (timeGap > 0 && timeGap <= delayYoutube) {
-      timeout = delayYoutube - timeGap;
+    if (timeGap > 0 && timeGap <= delayYoutubeMs) {
+      timeout = delayYoutubeMs - timeGap;
     }
   }
 
@@ -160,7 +151,7 @@ async function downloadYoutubeHelper(
       preferFreeFormats: true,
     };
     // Only add verbose if true (yt-dlp doesn't support --no-verbose)
-    if (global.ytVerbose) {
+    if (state.ytVerbose) {
       ytdlOptions.verbose = true;
     }
     await ytdl(urlYoutube, ytdlOptions);
@@ -172,7 +163,7 @@ async function downloadYoutubeHelper(
     logger.info(`Downloaded video ${filenameYoutube} with quality="${format}"`);
 
     let subtitles: Array<{ src: string; srclang: string; default: boolean }> = [];
-    if (global.downloadYoutubeSubtitles) {
+    if (state.downloadYoutubeSubtitles) {
       try {
         subtitles = await downloadYoutubeSubtitles(videoId, filenameBase, outputPath) || [];
       } catch (error) {
@@ -181,7 +172,7 @@ async function downloadYoutubeHelper(
       }
     }
 
-    global.previousYoutubeTimestamp = Date.now();
+    setState.previousYoutubeTimestamp = Date.now();
 
     return {
       src: filenameYoutube,

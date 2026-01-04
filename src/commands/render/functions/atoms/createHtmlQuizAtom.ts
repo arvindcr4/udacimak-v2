@@ -11,6 +11,7 @@ import {
   createHtmlVideo,
 } from '../utils';
 import type { UdacityQuizAtom } from '../../../../types/udacity-api';
+import { state } from '../../../../state/CommandLineState';
 
 /**
  * Create HTML content for QuizAtom
@@ -39,7 +40,7 @@ export default async function createHtmlQuizAtom(
     // process different semantic types of QuizAtom
     if (semanticType === 'ProgrammingQuestion' || semanticType === 'IFrameQuestion') {
       promiseQuizQuestion = createHtmlQuizProgrammingQuestion(atom);
-      if (global.optRenderUserQuizAnswer) {
+      if (state.optRenderUserQuizAnswer) {
         promiseQuizUserAnswer = createHtmlProgrammingQuestionUserAnswer(atom.user_state || {});
       }
     } else if (semanticType === 'ImageFormQuestion') {
