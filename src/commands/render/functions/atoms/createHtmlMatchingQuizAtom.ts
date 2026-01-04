@@ -26,7 +26,7 @@ export default async function createHtmlMatchingQuizAtom(
   atom: UdacityMatchingQuizAtom
 ): Promise<string> {
   const { question } = atom;
-  const prompt = markdownToHtml(question.complex_prompt.text || '');
+  const prompt = markdownToHtml(question.complex_prompt?.text || '');
   const concepts: Concept[] = [];
   const answers: Answer[] = [];
   const solutions: Solution[] = [];

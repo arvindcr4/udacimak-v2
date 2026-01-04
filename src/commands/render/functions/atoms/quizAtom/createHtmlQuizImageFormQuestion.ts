@@ -32,8 +32,9 @@ export default async function createHtmlQuizImageFormQuestion(
   ]);
 
   let htmlWidgets = '';
-  for (let i = 0, len = question.widgets.length; i < len; i += 1) {
-    const widget = question.widgets[i];
+  const widgets = question.widgets || [];
+  for (let i = 0, len = widgets.length; i < len; i += 1) {
+    const widget = widgets[i];
     htmlWidgets += createHtmlWidget(widget);
   }
 

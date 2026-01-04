@@ -29,7 +29,7 @@ export default async function createHtmlReflectAtom(
   }
 
   // download answer video if available
-  const youtubeId = atom.answer.video ? atom.answer.video.youtube_id : '';
+  const youtubeId = atom.answer.video ? (atom.answer.video.youtube_id || '') : '';
   const promiseHtmlVideo = createHtmlVideo(youtubeId, targetDir, prefix, atom.title);
   const promiseLoadTemplate = loadTemplate('atom.reflect');
 

@@ -33,7 +33,7 @@ export default async function createHtmlQuizAtom(
 
     // download instruction video if available
     const youtubeIdQuestion = (atom.instruction && atom.instruction.video)
-      ? atom.instruction.video.youtube_id : '';
+      ? atom.instruction.video.youtube_id || '' : '';
     const videoQuestion = await createHtmlVideo(youtubeIdQuestion,
       targetDir, prefix, atom.title);
 
@@ -55,7 +55,7 @@ export default async function createHtmlQuizAtom(
 
     // all other promises
     const youtubeIdAnswer = (atom.answer && atom.answer.video)
-      ? atom.answer.video.youtube_id : '';
+      ? atom.answer.video.youtube_id || '' : '';
     const promiseDownloadYoutubeAnswer = createHtmlVideo(youtubeIdAnswer,
       targetDir, prefix, atom.title);
     const promiseLoadTemplate = loadTemplate('atom.quiz');

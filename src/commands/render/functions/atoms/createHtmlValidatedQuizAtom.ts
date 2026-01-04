@@ -17,8 +17,9 @@ export default async function createHtmlValidatedQuizAtom(
   const prompt = await createHtmlText(atom.question.prompt || '', targetDir, atom.id);
   const matchers: string[] = [];
 
-  for (let i = 0, len = atom.question.matchers.length; i < len; i += 1) {
-    const matcher = atom.question.matchers[i];
+  const matchersArray = atom.question.matchers || [];
+  for (let i = 0, len = matchersArray.length; i < len; i += 1) {
+    const matcher = matchersArray[i];
     matchers.push(matcher.expression);
   }
 

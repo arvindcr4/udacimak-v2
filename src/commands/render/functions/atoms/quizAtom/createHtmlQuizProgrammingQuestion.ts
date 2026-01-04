@@ -21,8 +21,9 @@ export default async function createHtmlQuizProgrammingQuestion(
   const files: CodeFile[] = [];
   let active: string; let id: string; let isSelected: boolean; let
     name: string; let text: string;
-  for (let i = 0, len = atom.question.initial_code_files.length; i < len; i += 1) {
-    const file = atom.question.initial_code_files[i];
+  const initialCodeFiles = atom.question.initial_code_files || [];
+  for (let i = 0, len = initialCodeFiles.length; i < len; i += 1) {
+    const file = initialCodeFiles[i];
     // add active class for first elements
     active = (i === 0) ? ' active show' : '';
     isSelected = (i === 0);

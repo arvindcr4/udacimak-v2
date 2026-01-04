@@ -42,7 +42,7 @@ export default async function createHtmlWorkspaceAtom(
 
   // attempt to get workspace information
   if (configuration && configuration.blueprint) {
-    ({ kind } = configuration.blueprint);
+    kind = configuration.blueprint.kind || 'Unknown';
     const { conf } = configuration.blueprint;
     if (conf) {
       // Jupyter workspace usually has defaultPath

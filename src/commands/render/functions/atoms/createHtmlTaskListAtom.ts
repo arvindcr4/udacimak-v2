@@ -35,7 +35,7 @@ export default async function createHtmlTaskListAtom(
   }
 
   // download feedback video if available
-  const youtubeId = atom.video_feedback ? atom.video_feedback.youtube_id : '';
+  const youtubeId = atom.video_feedback ? (atom.video_feedback.youtube_id || '') : '';
   const promiseHtmlVideo = createHtmlVideo(youtubeId, targetDir, prefix, atom.title);
   const promiseLoadTemplate = loadTemplate('atom.taskList');
 
